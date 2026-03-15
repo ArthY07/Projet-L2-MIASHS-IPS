@@ -1,8 +1,7 @@
 # 📈 Deciphering Educational Inequality: A Data-Driven Study of French Vocational High Schools
 
-> **Projet L2 MIASHS** | Database Management & Data Science II  
-> **Team:** *Les Regressions Linéaires* (The Linear Regressions)
-
+**UE Base de données & Sciences des données** | L2 MIASHS  
+**Team:** Les Regressions Linéaires (The Linear Regressions)
 ---
 
 ## 📝 Executive Summary
@@ -59,9 +58,10 @@ $$Success = 0.423 \times IPS + 49.08$$
 
 ---
 
-## 👥 Author
+## 👥 Authors
 
-**Arthur Feschet** *Data Science Student*
+Arthur Feschet, Haitham Alfakhry, Noah Chayrigues, Felicie Sadet  
+*Data Science Students*
 
 ---
 

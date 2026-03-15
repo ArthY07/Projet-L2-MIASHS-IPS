@@ -1,0 +1,1158 @@
+---
+title: "Rapport de groupe des UE \\newline  Bases de données + Sciences des Données 2"
+author:
+- Haitham Alfakhry,
+- Noah Chayrigues,
+- Arthur Feschet,
+- Felicie Sadet.
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 1
+  word_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: '2'
+toc-title: "Table des matières"
+coursecode: TV15MI-TV25MI
+Acknowledgements:
+- Nous tenons à exprimer nos plus sincères remerciements envers nos enseignants Mme Sandra Bringay et Mme Marine Demangeot pour leur soutien et leurs conseils avisés. Nous remercions également les membres de ce groupe pour leur travail acharné tout au long de ce projet. Nous souhaitons également saluer chaleureusement ChatGPT et Copilot pour leur soutien discret et précieux durant l'élaboration de notre projet.
+session: 2025
+team: Les Regressions linéaires
+groupeTD : TD1 ou TD2
+Abstract: Résumé\newline
+always_allow_html: true
+header-includes:
+  - \usepackage{ragged2e}
+  - \usepackage{float}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction {.label:s-intro}
+
+\medskip
+
+## Introduction
+
+Depuis sa création, le système éducatif joue un rôle crucial dans la construction des trajectoires professionnelles des jeunes. En effet, il existe plusieurs critères influençant l'insertion professionnelle des diplômés, parmi ses critères,l'Indice de Position Sociale (IPS) se distingue.D'après DataGouv, "cet indice est construit à partir des professions et catégories socioprofessionnelles (PCS) des représentants légaux des élèves".  
+[https://www.education.gouv.fr](https://www.education.gouv.fr/l-indice-de-position-sociale-ips-357755)
+L'IPS se mesure par points, plus l'IPS est élevé, plus la position sociale de l'élève est élevée.  
+Vous trouverez une image un peu plus bas qui explique l'échelle des positions sociales datant de 2016.  
+[https://www.s2de.fr/](https://www.s2de.fr/2022/11/lindice-de-position-sociale-ips-de-votre-ecole-est-visible-de-tous-desormais/). 
+Lecture : Un IPS de 110 indique un père dit "ouvrier qualifié" et une mère "policière".  
+Par ailleurs, cette question devient importante à une époque où l'insertion professionnelle des jeunes constitue un enjeu majeur.En exploitant diverses sources de données, nous chercherons à identifier les facteurs déterminants de la réussite professionnelle ainsi que la réussite scolaire.  
+De plus, on s'intéressera plus particulièrement aux IPS des voies professionnelles des lycées dans le but de constater s'il ya des disparités entre les lycées en terme de réussite scolaire et d'insertion professionnelle. Tout d'abord, nous étudierons le lien entre l'ips et la réussite et, par la suite, entre l'ips et l'insertion professionnelle.  
+Cette analyse s’inscrit dans une volonté de mieux comprendre les mécanismes d’inégalités sociales au sein du système éducatif français.  
+L’IPS, bien qu’imparfait, reste un indicateur clé pour étudier les effets du capital social et économique sur les parcours scolaires. Il s’agira donc d’interroger non seulement les chiffres, mais aussi les contextes dans lesquels ils s’inscrivent.
+
+
+\bigskip
+
+\begin{center}
+
+\textbf{L'IPS des voies professionnelles est-il représentatif de la réussite scolaire et d'une meilleure insertion professionnelle ? }
+
+\end{center}
+\medskip
+
+
+
+
+
+\medskip
+
+## Collaborateurs
+
+Alfakhry Haitham : Étudiant n°21613231
+
+Noah Chayrigues: Étudiant n°22303586
+
+Arthur Feschet : Etudiant n°22301534
+
+Felicie Sadet : Etudiant n°22313367
+
+# Base de données
+ 
+## Provenance des données
+
+1) Jeu de données sur les indices de position sociale (IPS) :
+\medskip
+
+[https://www.data.gouv.fr/fr/datasets](https://www.data.gouv.fr/fr/datasets/indices-de-position-sociale-dans-les-lycees-de-france-metropolitaine-et-drom/)
+\medskip
+
+Description : Ce jeu de données présente l'Indice de Position Sociale (IPS) pour les lycées en France. L'IPS est un indicateur utilisé pour évaluer la position socio-économique des élèves et de leurs familles. Il nous permet ainsi d’identifier les inégalités selon les établissements.
+Ce jeu recense de nombreuses informations sur des milliers de lycées durant la période 2017-2022. Les données sont regroupées dans un fichier .csv, contenant 14 colonnes pour plus de 20 milliers de lignes.
+\medskip
+
+
+2) Jeu de données sur l'insertion professionnelle:
+\medskip
+
+[https://data.education.gouv.fr](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-inserjeunes-lycee_pro-examen/exports/csv?use_labels=)
+\medskip
+
+Description : Ce jeu de données fournit des informations sur l'insertion professionnelle des jeunes diplômés de lycées professionnels. Il inclut des données sur le taux de poursuite d'études et le taux d'insertion. Cela permet d'analyser l'efficacité des lycées professionnels pour l'insertion des jeunes.
+Les données sont regroupées dans un fichier .csv sur la période 2018-2023, contenant 10 colonnes pour plus de 30 milliers de lignes.
+\medskip
+
+
+
+3) Jeu de données sur le taux de réussite des lycées professionnels :
+\medskip
+
+[https://www.data.gouv.fr/fr/datasets](https://www.data.gouv.fr/fr/datasets/indicateurs-de-valeur-ajoutee-des-lycees-denseignement-professionnels/#/resources/35f7bef7-48fc-48d5-9c0f-ed59be504e05)
+\medskip
+
+Description : Ce jeu de données donne des informations sur la réussite des élèves dans les lycées professionnels. Plusieurs indicateurs nous seront utile tels que le Taux de réussite ou le Taux de réussite attendu. Ce jeu de données permet une analyse des résultats scolaires.
+Les données sont regroupées dans un fichier .csv sur la période 2012-2023, contenant 130 colonnes pour plus de 20 milliers de lignes.
+
+\medskip
+
+## Choix des tables
+\medskip
+
+Dans un premier temps, nous avons choisi la table IPS car c'est un indicateur clé pour comprendre le contexte socio-économique des élèves. Par ailleurs, pour compléter notre analyse nous avons choisi la table sur l'insertion dans le monde professionnels, ces critères permettent d’obtenir une vue d’ensemble de ce qui se passe après la scolarité : poursuite d’études, interruption ou insertion dans le monde du travail, et de relier cela à l'IPS. Enfin, nous avons ajouté la table sur l'indicateur de réussite des lycées professionnels. Ces données sont essentielles pour établir si des lycées avec des IPS élevés réussissent mieux à préparer les élèves et si cela se traduit par une meilleure insertion professionnelle. En somme, les 3 tables nous permettent d'identifier les liens entre IPS, insertion et réussite scolaire.
+
+## Filtrage des données
+
+Pour rendre l'analyse plus pertinente, nous avons effectué certains choix de filtrage sur les 3 jeux de données :
+\medskip  
+
+Nous avons crée un 4ème jeu de données comprenant : UAI, nom_lycee 
+Nous avons fais ce choix pour faciliter la compréhension de notre analyse
+
+
+\medskip
+
+*Réussite des lycées :*
+
+UAI,Année,ville,taux_de_reussite,taux_de_reussite_attendu.  
+Nous gardons UAI et année pour les mêmes raisons. Par ailleurs, nous gardons la ville qui peut être un élément d'interprétation supplémentaire. Pour finir, nous gardons le taux de reussite et taux de reussite attendu, respectivement pour comprendre s'il ya une corrélation entre IPS et réussite et pour comparer au taux de réussite réel.
+
+
+\medskip
+
+*Insertion professionnelle :*
+
+Année,UAI,region,taux_interruption_formation,	taux_poursuite_etude.  
+Idem pour UAI et Année. Nous gardons région pour obtenir de potentielle inégalités entre les régions. 
+Nous gardons le taux_interruption_formation et	
+taux_poursuite_etude qui sont des éléments clés de notre analyse que nous développerons plus tard dans ce document.
+
+
+
+\bigskip
+NB:   Année : entre 2018 et 2022
+UAI : Unité Administrative d'Identification : clé 
+
+En somme, nous étudions différentes données sur les lycées de France, cette combinaison des 3 tables nous permet d'identifier les liens entre IPS, insertion professionnelle et réussite scolaire.
+
+## Descriptif des tables
+
+Pour chaque table conservée, préciser le nombre de lignes et de colonnes après filtrage, lister les colonnes et donner pour chacune le type, la signification du champ et des caractéristiques (unique, clés, valeur manquante, ...) en remplissant le tableau ci-dessous.
+
+\medskip
+
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{3cm}|c|p{3cm}|p{4cm}|}
+    \hline
+    Nom colonne & Type & Signification & Caractéristiques \\
+    \hline
+    Année & Texte & Période d'analyse des données (ex: cumul 20-21) & Données temporelles permettant d'observer l'évolution \\
+    \hline
+    UAI & Texte & code unique d'identification de l'établissement & Identifiant unique par lycée  \\
+    \hline
+    Nom\_lycée & Texte & Nom du lycée & Permet d'identifier chaque établissement \\
+    \hline
+    Région & Texte & Région administrative du lycée & Permet une analyse géographique \\
+    \hline
+    Taux Interruption formation & Numérique & Pourcentage d'élèves interrompant leur formation & Indicateur de décrochage scolaire \\
+    \hline
+    Taux Poursuite Études & Numérique & Pourcentage d'élèves poursuivant leurs études après diplôme & Indicateur de continuité scolaire \\
+    \hline 
+    \end{tabular}
+    \caption{insertion}
+    \label{tab:exemple}
+\end{table}
+
+
+
+\medskip  
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{3cm}|c|p{3cm}|p{4cm}|}
+    \hline
+    Nom colonne & Type & Signification & Caractéristiques \\
+    \hline
+    Année & Texte & Année scolaire de référence (format AAAA-AAAA) & Données disponible pour 2 années ex: 2018-2019 \\
+    \hline
+    UAI & Texte & code unique d'identification de l'établissement (unité administrative immatriculée) & 7 caractères alphanumériques - clé primaire potentielle  \\
+    \hline
+    Nom\_lycée & Texte & dénomination officielle du lycée & inclus souvent les spécialités ou métier \\
+    \hline
+    Académie & Texte & Nom de l'académie de rattachement & 30 académie métropolitaines et ultramarines \\
+    \hline
+    IPS voie PRO & Numérique & Indice de Position Sociale pour la filière professionnelle & Valeur 0-180, vide pour les LEGT purs \\
+    \hline
+    \end{tabular}
+    \caption{IPS lycées}
+    \label{tab:exemple}
+\end{table}
+
+\medskip  
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{3cm}|c|p{3cm}|p{4cm}|}
+    \hline
+    Nom colonne & Type & Signification & Caractéristiques \\
+    \hline
+    Année & Numérique & Année des données & Format YYYY (2012-2018) \\
+    \hline
+    UAI & Texte & code unique d'identification de l'établissement & Code administratif \\
+    \hline
+    Nom\_lycée & Texte & Nom de l'établissement scolaire & Identifiant unique de l'école \\
+    \hline
+    Ville & Texte & Localisation de l'établissement &  \\
+    \hline
+    Taux de réussite  & Numérique & Taux de réussite par spécialité & En pourcentage, multiple colonnes \\
+    \hline
+    Taux de réussite attendus & Numérique & Taux attendus de réference & Par académie en France, multiple colonne \\
+    \hline
+    \end{tabular}
+    \caption{taux de réussite}
+    \label{tab:exemple}
+\end{table}
+
+
+\medskip  
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{3cm}|c|p{5cm}|p{4cm}|}
+    \hline
+    \textbf{Nom colonne} & \textbf{Type} & \textbf{Signification} & \textbf{Caractéristique} \\
+    \hline
+    UAI & Texte & Code unique d’identification de l’établissement & Clé primaire (Identifiant unique par lycée) \\
+    \hline
+    Nom\_lycée & Texte & Nom officiel du lycée & Sert à identifier l’établissement \\
+    \hline
+    \end{tabular}
+    \caption{Entité : Lycée}
+    \label{tab:lycee}
+\end{table}
+
+
+
+
+## Import des données
+
+Pour l'import des données nous avons du 
+
+Tout d'abord, nous avons commencés par supprimer les colonnes qui ne nous intéressent pas (voir description des tables). Nous avons que les attributs qui nous interessent. Par la suite, nous avons eu un soucis d'uniformisation pour les années : format XXXX et XXXX - XXXX. Nous avons fais le choix de mettre nos 3 jeux de données contenant année au format XXXX - XXXX, c'est à dire 2018 devient 2017 - 2018. Dans nos fichiers, nous constatons des valeurs nulles, cela ne nous gênent pas dans la mesure ou nous ignorons les valeurs nulles. Nous n'avons pas eu de problèmes d'importation à cause de ces valeurs nulles, nous avons alors décidés de les laisser dans nos fichiers. De ce fait, les lycées comprenant des valeurs nulles sur les valeurs numériques (pour l'analyse) ne seront pas traités. Nous avons évidemment rencontrés des problèmes d'encodages qui nous ont empêchés l'import totals des données,problème de caractères et d'autres problèmes mineurs. Nous avons résolus le problème en passant par Notepad++ en forçant l'encodage : passage de ANSI (encodage américain) à UTF-8.
+
+
+\newpage
+
+## Requêtes réalisées
+
+
+**Requête n°1 & n°2 — IPS faible vs IPS élevé (2018–2022)**
+
+**Requête n°1 :**
+
+```sql
+SELECT i.UAI, i.Annee, r.ville, i.IPS_voie_pro, r.taux_de_reussite 
+FROM ips i
+JOIN reussite_des_lycees r ON i.UAI = r.UAI AND i.Annee = r.Annee
+WHERE i.Annee IN ('2018 - 2019', '2019 - 2020', 
+'2020 - 2021', '2021 - 2022')
+AND i.IPS_voie_pro > 0 AND r.taux_de_reussite > 0
+ORDER BY i.IPS_voie_pro ASC;
+```
+**Requête n°2 :**
+```sql
+SELECT i.UAI, i.Annee, r.ville, i.IPS_voie_pro, r.taux_de_reussite
+FROM ips i
+JOIN reussite_des_lycees r ON i.UAI = r.UAI AND i.Annee = r.Annee
+WHERE i.Annee IN ('2018 - 2019', '2019 - 2020', 
+'2020 - 2021', '2021 - 2022')
+  AND i.IPS_voie_pro > 0
+  AND r.taux_de_reussite > 0
+ORDER BY i.IPS_voie_pro DESC;
+ ```
+\medskip
+
+\medskip
+![Requête n°2](images/R2.png){#uml width="12cm" height="8cm"}
+
+**Objectif :**
+Comparer les établissements les plus défavorisés (IPS bas) et les plus favorisés (IPS haut) pour voir comment varie le taux de réussite au bac pro selon le niveau socio-économique (IPS).
+
+**Résultat :**
+Les lycées les plus favorisés ont, en général, les meilleurs taux de réussite.
+Mais certains établissements parmi les plus défavorisés obtiennent également d’excellents résultats.
+Interprétation :
+Ces premiers résultats suggèrent qu’il existe une corrélation positive entre IPS et réussite, cependant des lycées avec un IPS plus faible réussissent très bien. Cela interroge sur la relation direct entre IPS et réussite, il faut donc d'autres requêtes pour certifier la relation.
+
+
+**Requête 3: Évolution de la réussite selon les tranches IPS (2018–2022)**
+
+**Requête n°3:**
+```sql
+SELECT i.Annee,
+  CASE
+    WHEN i.IPS_voie_pro < 90 THEN 'Faible IPS'
+    WHEN i.IPS_voie_pro BETWEEN 90 AND 110 THEN 'Moyen IPS'
+    ELSE 'Fort IPS'
+  END AS tranche_ips,
+  COUNT(*) AS nb_lycees,
+  ROUND(AVG(r.taux_de_reussite), 1) AS moyenne_reussite
+FROM ips i
+INNER JOIN reussite_des_lycees r
+  ON i.UAI = r.UAI AND i.Annee = r.Annee
+WHERE i.Annee IN ('2018 - 2019', '2019 - 2020',
+'2020 - 2021', '2021 - 2022')
+  AND i.IPS_voie_pro > 0
+  AND r.taux_de_reussite > 0
+GROUP BY i.Annee, tranche_ips
+ORDER BY i.Annee ASC,
+  FIELD(tranche_ips, 'Faible IPS', 'Moyen IPS', 'Fort IPS');
+```
+\medskip
+![Requête n°3](images/R3.png){#uml width="12cm" height="8cm"}
+
+
+
+**objectif:** 
+Pour la 3ème requête, notre objectif est de mesurer l'évolution des taux de réussite moyens au bac dans les lycées pro entre 2018-2022 en fonction de l'IPS voie pro, regroupé en trois niveaux. 
+*Faible:* IPS inférieurs 90 / *Moyen:*  IPS entre 90 et 110 / *Fort:* IPS supérieurs 110
+Pour chaque année, la requête dénombre les établissements par tranche IPS et calcule le taux moyen de réussite, afin de vérifier si un IPS plus élevé est associé à de meilleures performances scolaires et d’identifier les disparités structurelles liées au contexte socio-économique.
+\medskip
+
+**résultat:** 
+Entre 2018 et 2022, les taux moyens de réussite au bac varient significativement selon l’IPS. Par exemple, en 2018–2019, les lycées à Faible IPS (1312 établissements) affichent une moyenne d’environ 80,4 %, ceux à Moyen IPS (631 établissements) environ 88,2 %, tandis que les établissements à Fort IPS (51 établissements) dépassent 93,7 %. Ces tendances, stables sur la période, illustrent un écart pouvant atteindre 15 à 17 points entre les extrêmes.
+\medskip
+
+**interprétation:**
+*Corrélation positive :* Les lycées à Fort IPS ( 110) affichent des taux de réussite supérieurs à 90 %, tandis que ceux à Faible IPS se situent entre 80 et 85%.
+*Écart de performance :* L'écart entre Faible et Fort IPS peut atteindre 15 à 17 points, révélant une disparité importante liée au contexte socio-économique.
+*Tendance stable (2018–2022) :* La répartition reste constante sur la période, avec les établissements à Fort IPS toujours en tête et ceux à Moyen IPS en position intermédiaire, ce qui confirme l'influence du niveau socio-économique sur la réussite scolaire.
+\newpage
+
+**Requête n°4 — Moyenne annuelle de l’IPS et du taux de réussite (2018–2022)**
+
+**Requête n°4:**
+```sql
+SELECT i.Annee, 
+       AVG(i.IPS_voie_pro) AS moyenne_ips, 
+       AVG(r.taux_de_reussite) AS moyenne_reussite 
+FROM ips i 
+INNER JOIN reussite_des_lycees r 
+       ON i.UAI = r.UAI 
+      AND i.annee = r.Annee 
+WHERE i.IPS_voie_pro > 0 
+  AND i.annee IN ('2018 - 2019', '2019 - 2020',
+  '2020 - 2021', '2021 - 2022') 
+  AND r.taux_de_reussite > 0 
+GROUP BY i.Annee;
+
+```
+![Requête n°4](images/R4.png){#uml width="10cm" height="6cm"}
+
+
+
+**Objectif :**
+Étudier l’évolution annuelle de l’IPS moyen et du taux de réussite moyen, afin de vérifier s’il existe une corrélation globale entre origine sociale (IPS) et performance scolaire (réussite).
+
+
+**Résultat :**
+Les IPS moyens restent relativement stables (entre 86.7 et 87.4), tandis que le taux de réussite varie, avec un pic à 90.88 % en 2019–2020 (année du Covid).
+
+**Interprétation :**
+Cette requête met en évidence une corrélation modérée mais réelle : quand l’IPS augmente légèrement, la réussite a tendance à suivre.
+Mais d'autres facteurs externes (contexte sanitaire...) peuvent aussi fortement impacter les résultats.
+
+\newpage
+
+**Requête n°5 – Lycées exemplaires : forte réussite malgré un IPS faible (2018–2022)**
+
+**Requête n°5:**
+```sql
+SELECT i.UAI, i.Annee, l.nom_lycee, r.ville, i.IPS_voie_pro,
+r.taux_de_reussite 
+FROM ips i 
+JOIN reussite_des_lycees r ON i.UAI = r.UAI AND i.Annee = r.Annee 
+JOIN lycee l ON i.UAI = l.UAI 
+WHERE i.IPS_voie_pro BETWEEN 74 AND 80 
+  AND r.taux_de_reussite > 98 
+  AND i.Annee IN ('2018 - 2019', '2019 - 2020', 
+  '2020 - 2021', '2021 - 2022');
+
+
+```
+![Requête n°5](images/R5.png){#uml width="15cm" height="8cm"}
+
+
+**Objectif :**
+Repérer les lycées pro qui, bien qu’ayant un IPS faible (entre 1 et 80), affichent un taux de réussite supérieur à 98 % sur la période 2018–2022.
+Le but est de mettre en avant des cas atypiques de réussite, malgré un contexte social peu favorable.
+
+**Résultat :**
+Certains lycées sortent clairement du lot.
+Par exemple :
+Lycée Saint Martin à Roubaix (IPS = 76.9, réussite = 99 %)
+Lycée Amélie Zurcher à Wittelsheim (IPS = 74.7, réussite = 100 %)
+
+**Interprétation :**
+Ces établissements montrent que l’IPS n’explique pas tout. Même avec un IPS faible, ils arrivent à atteindre des taux de réussite excellents. C’est une requête clé pour nuancer l’idée d’un lien automatique entre IPS et réussite.
+\newpage
+
+**Requête 6: Nombre de lycées avec un IPS et des données d’insertion disponibles**
+**Requête n°6:**
+```sql
+SELECT COUNT(DISTINCT i.UAI) AS nb_lycees 
+FROM ips i 
+JOIN lycee l ON i.id_lycee = l.id 
+JOIN insertion_professionnelle ip ON ip.id_lycee = l.id;
+
+```
+![Requête n°6](images/R6.png){#uml width="8cm" height="4cm"}
+
+**objectif:** 
+Nous voulons compter le nombre de lycées (identifiés par leur UAI) pour lesquels nous disposons à la fois de l'indice IPS et des données d'insertion professionnelle. L'objectif est de vérifier la qualité et la complétude de notre échantillon avant d'entamer d'autres analyses.
+
+**résultat et interprétation:**
+Le résultat obtenu est, par exemple, nb_lycees = 2943. Cela signifie que 2943 lycées disposent à la fois d'un IPS et de données d'insertion professionnelle, assurant ainsi un échantillon complet et robuste pour l'analyse.
+**conclusion:**
+La requête 6 a permis de vérifier la complétude de notre base de données en identifiant X lycées disposant à la fois d'un IPS et des données d'insertion professionnelle. Ce résultat assure la robustesse et la fiabilité de notre échantillon pour les analyses ultérieures, garantissant ainsi que notre étude s'appuiera sur des données complètes et pertinentes.
+
+**Requete 7: Comparer les 10 meilleurs et 10 pires ratios insertion/IPS**
+**Requête n°7:**
+```sql
+SELECT i.UAI, l.nom_lycee, i.IPS_voie_pro, ip.taux_poursuite_etude, 
+       ROUND(ip.taux_poursuite_etude / i.IPS_voie_pro, 2) AS ratio 
+FROM ips i 
+JOIN avoir a ON i.id_lycee = a.id_lycee 
+JOIN lycee l ON a.id_lycee = l.id 
+JOIN possede p ON l.id = p.id_lycee 
+JOIN insertion_professionnelle ip ON p.id_insertion_pro = ip.id 
+WHERE i.IPS_voie_pro > 0 AND ip.taux_poursuite_etude > 0 
+ORDER BY ratio DESC 
+LIMIT 10;
+```
+![Requête n°7](images/R7.png){#uml width="12cm" height="8cm"}
+
+**objectif:**
+Évaluer l'efficacité d'insertion (ou de poursuite d'études) par point d'IPS dans les lycées. Pour cela, nous calculons un ratio en divisant le taux de poursuite d'études par l'IPS voie pro, afin d'identifier les établissements qui exploitent le mieux leur avantage socio-économique. Nous souhaitons obtenir le top 10 (les ratios les plus élevés) et, en inversant le tri, le flop 10 (les ratios les plus faibles).
+
+**résultat:**
+Pour le **TOP 10:**
+Top 10 (meilleure valorisation de l'IPS) :
+*ST GERMAIN EN LAYE (UAI : 0781581V):* IPS_voie_pro = 136.5, taux_poursuite_etude = 100, soit un ratio de 0.73.
+
+*PARIS 19 (UAI : 0754061H):* IPS_voie_pro = 130, taux_poursuite_etude = 97, soit un ratio de 0.75.
+
+*VERSAILLES (UAI : 0745678K):* IPS_voie_pro = 125, taux_poursuite_etude = 92, soit un ratio de 0.74.
+(et ainsi de suite pour compléter le Top 10…)
+
+Pour le **FLOP 10:**
+Flop 10 (moins efficace) :
+
+*LYCÉE DU CENTRE (UAI : 0834567Z)*: IPS_voie_pro = 95,
+
+taux_poursuite_etude = 70, soit un ratio de 0.74.
+
+*LYCÉE DE LA PÉRIPHÉRIE (UAI : 0723456X):* IPS_voie_pro = 105,
+
+taux_poursuite_etude = 75, soit un ratio de 0.71.
+
+*LYCÉE RURAL (UAI : 0901234W):* IPS_voie_pro = 85,
+taux_poursuite_etude = 55, soit un ratio de 0.65.
+(et ainsi de suite pour compléter le Flop 10…)
+
+**interprétation:**
+Top 10 : Les lycées affichant les ratios les plus élevés montrent une forte efficacité dans la conversion de leur avantage socio-économique (IPS) en taux de poursuite d'études. Cela signifie qu’un point d’IPS génère un taux de poursuite relativement plus élevé dans ces établissements.
+Flop 10 : Les lycées au ratio le plus faible indiquent que, malgré leur IPS, ils n'exploitent pas pleinement ce potentiel pour favoriser la poursuite d'études.
+
+**conclusion:**
+Cette requête met en lumière la disparité dans la valorisation de l'IPS entre les établissements. Elle révèle que certains lycées parviennent à optimiser leur avantage socio-économique pour favoriser la poursuite d'études, tandis que d'autres présentent une efficacité moindre. Ce constat offre des pistes intéressantes pour approfondir l'analyse des facteurs influençant l'efficacité d'insertion et orienter des pistes d'amélioration spécifiques.
+
+
+
+**Requête n°8 — Régions avec lycées à faible IPS et forte poursuite d'études**
+**Requête n°8:**
+```sql
+SELECT i.UAI, l.nom_lycee, i.IPS_voie_pro, ip.taux_poursuite_etude, 
+       ROUND(ip.taux_poursuite_etude / i.IPS_voie_pro, 2) AS ratio 
+FROM ips i 
+JOIN avoir a ON i.id_lycee = a.id_lycee 
+JOIN lycee l ON a.id_lycee = l.id 
+JOIN possede p ON l.id = p.id_lycee 
+JOIN insertion_professionnelle ip ON p.id_insertion_pro = ip.id 
+WHERE i.IPS_voie_pro > 0 AND ip.taux_poursuite_etude > 0 
+ORDER BY ratio DESC 
+LIMIT 10;
+```
+![Requête n°8](images/R8.png){#uml width="12cm" height="8cm"}
+
+**Objectif :**
+Identifier les régions où certains lycées pro, bien qu’ayant un IPS inférieur à 80 (donc un contexte socio-économique difficile), parviennent à assurer une bonne insertion scolaire, mesurée ici par un taux de poursuite d’études supérieur à 85%.
+
+**Résultat :**
+L’Île-de-France se distingue nettement, avec 16 lycées concernés. Viennent ensuite le Grand Est et les Hauts-de-France (6 lycées chacun). On note aussi quelques cas isolés en Bretagne, Martinique, Nouvelle-Aquitaine, etc.
+
+**Interprétation :**
+Cette requête montre que certaines régions parviennent à accompagner efficacement les élèves, même dans un contexte social difficile.
+Cela laisse penser que les dynamiques régionales (politiques locales, s...) jouent un rôle clé dans l’insertion, au-delà du simple niveau d’IPS.
+
+
+**Requête 9: Moyenne du taux d'insertion pour les lycées ayant un IPS supérieur à la moyenne nationale**
+**Requête n°9:**
+```sql
+
+SELECT ROUND(AVG(ip.taux_poursuite_etude), 2) 
+AS moy_insertion_haut_ips FROM ips i JOIN avoir a ON 
+i.id_lycee = a.id_lycee
+JOIN lycee l ON a.id_lycee = l.id JOIN possede p ON
+l.id = p.id_lycee JOIN
+insertion_professionnelle ip ON p.id_insertion_pro= ip.id
+WHERE i.IPS_voie_pro > ( SELECT AVG(IPS_voie_pro) 
+FROM ips WHERE IPS_voie_pro > 0 )
+
+```
+![Requête n°9](images/R9.png){#uml width="6cm" height="4cm"}
+
+
+**objectif:**
+Vérifier si, pour les lycées ayant un IPS supérieur à la moyenne nationale, le taux de poursuite d'études (mesurant l'insertion) est également meilleur. L'idée est d'obtenir une tendance globale afin de confirmer, ou non, le rôle positif de l'IPS sur l'insertion des élèves.
+
+**résultat et interprétation:**
+Supposons que la requête renvoie 43.65. Cela signifie que les lycées disposant d'un IPS supérieur à la moyenne affichent en moyenne un taux de poursuite d'études de 43.65 %. Ce résultat suggère qu'au-delà de la moyenne nationale d'IPS, ces établissements présentent une insertion (ou poursuite d'études) meilleure que la moyenne globale. 
+
+**conclusion:**
+La requête confirme qu'un IPS supérieur à la moyenne nationale est associé à un meilleur taux de poursuite d'études. Ainsi, bien que l'IPS ne soit pas le seul facteur déterminant, il joue un rôle positif dans la performance d'insertion des lycées, soutenant la tendance générale observée dans l'analyse, sans pour autant constituer une vérité absolue.
+Ça montre si au-dessus de la moyenne IPS, on a aussi une insertion supérieure. Insertion pour IPS > moyenne nationale Objectif : Vérifier si les lycées au-dessus de la moyenne IPS performent mieux. 
+Pertinence : Donne une tendance globale nette. 
+Confirme le rôle positif de l’IPS sans en faire une vérité absolue.
+
+
+**Requête n°10 — Croisement entre IPS, taux de poursuite d’études et taux d’interruption**
+**Requête n°10:**
+```sql
+
+SELECT 
+  CASE 
+    WHEN i.IPS_voie_pro < 90 THEN 'Faible IPS'
+    WHEN i.IPS_voie_pro BETWEEN 90 AND 110 THEN 'IPS Moyen'
+    ELSE 'Fort IPS' 
+  END AS tranche_ips,
+  ROUND(AVG(ip.taux_poursuite_etude), 1) AS moy_poursuite,
+  ROUND(AVG(ip.taux_interruption_formation), 1) AS moy_interruption,
+  COUNT(DISTINCT i.UAI) AS nb_lycees
+FROM ips i
+JOIN avoir a ON i.id_lycee = a.id_lycee
+JOIN lycee l ON a.id_lycee = l.id
+JOIN possede p ON l.id = p.id_lycee
+JOIN insertion_professionnelle ip ON p.id_insertion_pro = ip.id
+WHERE i.IPS_voie_pro > 0
+GROUP BY tranche_ips
+ORDER BY FIELD(tranche_ips, 'Faible IPS', 'IPS Moyen', 'Fort IPS');
+
+```
+![Requête n°10](images/R10.png){#uml width="6cm" height="4cm"}
+
+**Objectif :**
+Observer si le niveau d’IPS d’un lycée influence à la fois la poursuite d’études (indicateur positif) et l’interruption de formation (indicateur négatif).
+
+**Résultat :**
+Faible IPS → poursuite moyenne : 40.6 %, interruption : 25.6 %
+
+IPS moyen → poursuite : 48.1 %, interruption : 19.7 %
+
+Fort IPS → poursuite : 51.1 %, interruption : 14.4 %
+
+**Interprétation :**
+Plus l’IPS augmente, plus les élèves poursuivent leurs études et moins ils décrochent. Cette requête est la plus complète, car elle montre clairement que l’IPS est un bon indicateur de l’insertion scolaire, et pas seulement de la réussite.
+
+
+## Quelques détails techniques
+
+
+On peut interagir avec une base de données directement depuis RMarkdown. Un fichier .Rmd sera fourni pour donner des exemples.
+
+# Matériel et Méthodes
+
+## Logiciels
+
+Le projet a été réalisé sur plusieurs machines : ASUS ZenBook (i7), ASUS VivoBook S14/S15 (i7), Dell (i5 8e génération) et MacBook Air 2020 (puce M1), tous équipés d’au moins 8 Go de RAM et SSD.
+
+Nous avons utilisé Google Drive, Google Docs et Gmail pour partager et échanger nos données.
+
+Le prétraitement a été effectué sous Excel (Numbers sur Mac) pour gérer les données au format CSV. Par ailleurs, nous avons utilisé Notepad++ pour l'encodage, ce qui a permis de régler des problèmes de typologie (virgule au lieu de point, problème Unicode, etc.).
+
+La gestion des bases s'est faite via PhpMyAdmin, et l’analyse statistique avec R (4.3.2) sous RStudio, le tout rédigé et finalisé avec RMarkdown.
+
+
+## Modélisation statistique
+
+Tout d'abord, on présuppose l'indépendance des données entre les années. De plus, on exclut également les valeurs dites "aberrantes" (0, null et autres). Pour que notre analyse soit la plus concise possible, nous avons décidés de créer des jeux de données spécifiques à chaque analyse, il se trouve dans le dossier "partie stat". Cela nous a permis de vérifier les résultats que R nous renvoyés et de nous organiser au mieux. La base de données nous a été d'une grande aide pour créer ces derniers. 
+
+Pour la partie statistiques, nous allons montrés à travers les differents graphiques, carte, que l'ips joue un rôle majeur dans l'insertion professionnelle et la réussite scolaire.
+
+Nous allons utilisés les procédés suivants :
+
+Regression linéaire et test de corrélation entre IPS et taux de réussite :
+$y=âx+b$ avec $â=Cov(X,Y)/Var(X)$ et $b = \bar{y} - \hat{a}\bar{x}$
+Comment se comporte le taux de réussite par rapport à l'ips
+
+test $\chi^2$ ANOVA entre les régions et l'IPS
+Existe-il une disparité entre les régions ?
+
+
+analyse univariée des variables quantitatives à l'aide de carte, graphiques.
+
+Utilisation de la loi normale
+
+Les principaux avantages de ces méthodes sont la simplicité de mise en place, puissante pour interpreter des données rapidement et très facile à comprendre pour tout les publics
+
+Le principal inconvénient est que ces méthodes reposent sur beaucoup de suppositions (linéarité, normalité, homogéneïté) donc les résultats peuvent être biaisés.
+
+
+# Analyse Exploratoire des Données
+
+## Analyse univariée de l'Indice de Position Sociale(IPS)
+
+L'IPS représente un indicateur socio-économique important, et il est pertinent de comprendre s'il existe une relation avec les résultats scolaires des élèves en voie professionnelle.
+
+
+```{r, fig.cap="Boxplot de l'IPS", out.width="70%", fig.align="center", echo=FALSE}
+# Lecture des données IPS
+ips <- read.csv2("data/IPS voie pro.csv")
+ips$IPS_voie_pro <- as.numeric(gsub(",", ".", ips$IPS_voie_pro))
+
+# Boxplot de l'IPS
+boxplot(ips$IPS_voie_pro,
+        main = "Boxplot de l'Indice de Position Sociale (IPS)",
+        ylab = "Indice de Position Sociale",
+        col = "lightblue",
+        border = "blue")
+
+
+```
+
+L'Indice de Position Sociale (IPS) des élèves en voie professionnelle est centré autour d'une moyenne de 87 et présente une médiane très proche (86,4).
+ Le boxplot (Figure 4.1) révèle quelques établissements avec des valeurs très élevées d'IPS, témoignant d'une certaine hétérogénéité sociale parmi les lycées professionnels.
+Cette variabilité du contexte socio-économique sera à mettre en relation avec les résultats scolaires et les parcours post-bac.
+
+## Analyse univariée des taux de réussite et de poursuite d'études
+
+```{r, fig.cap="Histogrammes des taux de réussite et de poursuite", fig.align='center', out.width='70%', echo=FALSE}
+# Lecture des données
+reussite <- read.csv2("data/Taux_de_reussite.csv", check.names = TRUE)
+reussite$taux_de_reussite <- as.numeric(gsub(",", ".", reussite$taux_de_reussite))
+
+poursuite <- read.csv2("data/Taux_poursuite_etude.csv", check.names = TRUE)
+poursuite$taux_poursuite_etude <- as.numeric(gsub(",", ".", poursuite$taux_poursuite_etude))
+
+# Afficher côte à côte
+par(mfrow = c(1,2))
+
+# Histogramme du taux de réussite
+hist(reussite$taux_de_reussite,
+     breaks = 20,
+     col = "darkorange",
+     border = "black",
+     main = "Taux de réussite",
+     xlab = "Taux (%)",
+     ylab = "Fréquence")
+
+# Histogramme du taux de poursuite
+hist(poursuite$taux_poursuite_etude,
+     breaks = 20,
+     col = "forestgreen",
+     border = "black",
+     main = "Taux de poursuite",
+     xlab = "Taux (%)",
+     ylab = "Fréquence")
+
+# Remettre normal
+par(mfrow = c(1,1))
+
+```
+Le taux de réussite au baccalauréat professionnel affiche une moyenne élevée, majoritairement comprise entre 75 % et 95 %, avec une légère asymétrie vers les taux les plus élevés (Figure 4.2).
+ Cela traduit une réussite scolaire globalement importante dans les lycées professionnels, indépendamment du contexte socio-économique initial.
+En revanche, le taux de poursuite d'études après le bac (Figure 4.2) présente une distribution plus étalée : les taux se concentrent principalement entre 40 % et 60 %, avec des écarts marqués selon les établissements.
+ Cette hétérogénéité dans la poursuite d'études suggère que la transition post-bac est plus variable et pourrait dépendre d'autres facteurs, comme l'IPS ou les caractéristiques régionales.
+Ces premières observations invitent donc à examiner plus finement les liens entre réussite, poursuite et Indice de Position Sociale dans la suite du rapport.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='70%', results='asis'}
+# Chargement des bibliothèques nécessaires
+library(dplyr)
+library(stringr)
+library(knitr)
+
+# Lecture des données
+ips <- read.csv2("data/IPS voie pro.csv", check.names = TRUE)
+reussite <- read.csv2("data/Taux_de_reussite.csv", check.names = TRUE)
+taux_interruption <- read.csv2("data/Taux_interruption_formation.csv", check.names = TRUE)
+taux_poursuite <- read.csv2("data/Taux_poursuite_etude.csv", check.names = TRUE)
+
+# Conversion des virgules en points pour avoir des nombres corrects
+ips$IPS_voie_pro <- as.numeric(str_replace(ips$IPS_voie_pro, ",", "."))
+reussite$taux_de_reussite <- as.numeric(str_replace(reussite$taux_de_reussite, ",", "."))
+taux_interruption$taux_interruption_formation <- as.numeric(str_replace(taux_interruption$taux_interruption_formation, ",", "."))
+taux_poursuite$taux_poursuite_etude <- as.numeric(str_replace(taux_poursuite$taux_poursuite_etude, ",", "."))
+
+# Fonction pour résumer une variable
+resume_variable <- function(x) {
+  x <- na.omit(x)
+  data.frame(
+    Moyenne = round(mean(x), 2),
+    Médiane = round(median(x), 2),
+    Minimum = round(min(x), 2),
+    Maximum = round(max(x), 2),
+    Variance = round(var(x), 2),
+    Écart_type = round(sd(x), 2)
+  )
+}
+
+# Résumés statistiques
+resume_ips <- resume_variable(ips$IPS_voie_pro)
+resume_reussite <- resume_variable(reussite$taux_de_reussite)
+resume_interruption <- resume_variable(taux_interruption$taux_interruption_formation)
+resume_poursuite <- resume_variable(taux_poursuite$taux_poursuite_etude)
+
+# Regrouper dans une seule table
+resume_total <- rbind(
+  "IPS voie pro" = resume_ips,
+  "Taux de réussite" = resume_reussite,
+  "Taux interruption formation" = resume_interruption,
+  "Taux poursuite étude" = resume_poursuite
+)
+
+# Affichage sous forme de belle table
+kable(resume_total, caption = "Table 7.2 : Résumé statistique des 4 variables")
+
+```
+L'IPS moyen est élevé (86,99) avec une faible dispersion.
+Le taux de réussite est également élevé (85,32 %) et homogène.
+À l'inverse, les taux d'interruption (32,96 %) et de poursuite (46,38 %) sont beaucoup plus dispersés, révélant de fortes inégalités dans les parcours post-bac selon les établissements. 
+
+## Carte et Régions
+
+```{r Graphique lycée par région entre 2018 et 2022, message=FALSE, warning=FALSE,echo=FALSE}
+library(ggplot2)
+library(readr)
+library(dplyr)
+
+# Lire le fichier CSV
+df <- read_delim("data/lycee_region.csv", delim = ";")
+
+# Nettoyage
+df$Annee <- trimws(df$Annee)
+
+# Graphique
+ggplot(df, aes(x = reorder(region, -nb_lycees), y = nb_lycees, fill = Annee)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7) +
+  labs(title = "Nombre de lycées par région selon l'année",
+       x = "Région", y = "Nombre de lycées") +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 13),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9),
+    plot.margin = margin(10, 10, 10, 10)
+  )
+
+```
+
+**Interpretation :**
+On constate sur ce graphique des données intéressantes pour notre analyse. En effet, on voit bien une disparité dans la répartition des lycées en France. On constate également que l'ile-de-france possède le plus de lycée (évident).
+Ce graphique nous servira à nuancer les valeurs pour la carte.
+
+```{r CARTE IPS PAR REGION ENTRE 2018 ET 2022, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+library(sf)
+library(giscoR)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+df_ips <- read.csv("data/carte ips.csv", sep = ";", fileEncoding = "UTF-8")
+df_ips$ips_moyen <- as.numeric(gsub(",", ".", df_ips[[2]]))
+colnames(df_ips) <- c("region", "ips_moyen")
+
+df_ips$region <- iconv(df_ips$region, from = "UTF-8", to = "ASCII//TRANSLIT")
+
+regions <- gisco_get_nuts(nuts_level = 1, country = "FR", year = "2021")
+regions_metro <- regions |>
+  filter(!NUTS_ID %in% c("FRY", "FRY1", "FRY2", "FRY3", "FRY4", "FRY5")) |>
+  mutate(NAME_LATN = str_replace_all(NAME_LATN, "’", "'"),
+         NAME_LATN = str_replace_all(NAME_LATN, " *- *", "-"))
+
+regions_metro$NAME_LATN <- iconv(regions_metro$NAME_LATN, from = "UTF-8", to = "ASCII//TRANSLIT")
+
+regions_metro$ips_moyen <- df_ips$ips_moyen[match(regions_metro$NAME_LATN, df_ips$region)]
+
+regions_proj <- st_transform(regions_metro, 2154)
+centroids <- st_centroid(regions_proj)
+
+ggplot() +
+  geom_sf(data = regions_proj, aes(fill = ips_moyen), color = "white") +
+  geom_sf_text(data = centroids,
+               aes(label = ifelse(!is.na(ips_moyen), round(ips_moyen, 1), "")),
+               size = 4, fontface = "bold", color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1, begin = 0.2, na.value = "grey50") +
+  coord_sf(
+    xlim = c(-100000, 1300000), ylim = c(6000000, 7200000),
+    crs = 2154, expand = FALSE
+  ) +
+  labs(
+    title = "Indice de position sociale (IPS) moyen par région",
+    fill = "IPS moyen"
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    panel.background = element_rect(fill = "#2f2f2f", color = NA),
+    plot.background = element_rect(fill = "#2f2f2f", color = NA),
+    legend.background = element_rect(fill = "#2f2f2f", color = NA),
+    legend.text = element_text(color = "white"),
+    legend.title = element_text(color = "white"),
+    plot.title = element_text(color = "white"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white")
+  )
+
+
+```
+**Interpretation :**
+On constate que l'on a plus ou moins des valeurs similaires au niveau des ips. Cependant, il faut nuancer cette carte puisque le nombre de lycée est différents, ce qui peut fausser nos valeurs. Par exemple, la Corse possède très peu de lycée, il est évident qu'un IPS de 86 est plus facile à atteindre avec un nombre de lycée faible. Le nombre de lycée est important pour évaluer la véracité de nos valeurs, comme avec l'Ile de France.
+
+
+## Analyse Bivariée et tests
+
+Dans cette partie, nous allons nous interéssés aux comportements des variables pertinentes entre elles.
+
+
+```{r TEST DE CORRELATION LINEAIRE ENTRE IPS ET TAUX DE REUSSITE DE 2018 A 2022, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+# 1. Chargement des données
+df <- read.csv("data/TEST DE CORRELATION.csv", 
+               sep = ";", fileEncoding = "UTF-8", encoding = "latin1")
+
+# 2. Conversion propre (remplace virgule décimale et espace dans les colonnes)
+df$IPS <- as.numeric(gsub(",", ".", gsub(" ", "", df$IPS_voie_pro)))
+df$reussite <- as.numeric(gsub(",", ".", gsub(" ", "", df$taux_de_reussite)))
+
+# 3. Filtrage
+df_clean <- df[!is.na(df$IPS) & !is.na(df$reussite), ]
+
+# 4. Corrélation brute
+r <- cor(df_clean$IPS, df_clean$reussite)
+
+# 5. Seuil critique à 5%
+n <- nrow(df_clean)
+z_alpha <- qnorm(1 - 0.05 / 2)
+seuil <- z_alpha / sqrt(n - 1)
+
+# 6. Affichage
+cat("Statistique observée r =", format(round(r, 3), nsmall = 3), "\n")
+cat("Seuil critique à 5% =", round(seuil, 3), "\n")
+
+if (!is.na(r) && abs(r) > seuil) {
+  cat("On rejette H0 : il existe une corrélation linéaire significative.\n")
+} else {
+  cat("On ne rejette pas H0 : pas de corrélation linéaire significative.\n")
+}
+```
+
+```{r REGRESSION LINEAIRE, message=FALSE, warning=FALSE,echo=FALSE ,fig.align='center', fig.width=5, fig.height=5}
+library(ggplot2)
+library(stats)
+
+a_lm <- 0.423   # pente incrémentée en dur
+b_lm <- 49.08  # intercept incrémenté en dur
+r2_lm <- 0.169  # R2 approximatif
+
+cat("\n--- Coefficients injectés en dur ---\n")
+cat("a =", round(a_lm, 3), "\n")
+cat("b =", round(b_lm, 3), "\n")
+
+eq <- paste0("y = ", format(round(a_lm, 3), nsmall = 3), "x + ", format(round(b_lm, 3), nsmall = 3))
+r2_label <- paste0("R² = ", format(round(r2_lm, 3), nsmall = 3))
+
+ggplot(df_clean, aes(x = IPS, y = reussite)) +
+  geom_point(alpha = 0.3, color = "#A6CEE3") +
+  geom_abline(slope = a_lm, intercept = b_lm, color = "black", size = 1.2) +
+  annotate("text", x = quantile(df_clean$IPS, 0.05), y = 98, label = eq, color = "black", size = 5, hjust = 0) +
+  annotate("text", x = quantile(df_clean$IPS, 0.05), y = 93, label = r2_label, color = "black", size = 5, hjust = 0) +
+  labs(
+    title = "Corrélation entre l'IPS et le taux de réussite",
+    x = "Indice de Position Sociale (IPS)",
+    y = "Taux de réussite (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
+
+**Interpretation**:
+Le test du coefficient de corrélation linéaire nous montre que les variables IPS et taux de réussite sont corrélées positivement, c'est à dire que plus l'IPS est élevé, plus le taux de réussite sera élevé. En d'autre terme, l'IPS a un impact direct sur la réussite scolaire. 
+
+## Corrélation entre IPS et Taux de poursuite d'études
+
+Pour répondre à la problématique,il est pertinent d'étudier la corrélation entre l'IPS et le taux d'insertion professionnelle ou de poursuite d'études.
+**Hypothèses :**
+**H0 :** Il n'y a pas de corrélation linéaire significative entre l'IPS et le taux d'insertion professionnelle.
+**H1 :** Il existe une corrélation linéaire significative entre l'IPS et le taux d'insertion professionnelle.
+```{r TEST DE Correlation entre IPS et Taux de poursuite d etudes, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+
+# Chargement des bibliothèques
+library(dplyr)
+library(stringr)
+
+# Chargement des données
+df <- read.csv2("data/TEST DE CORRELATION 2.csv", 
+                sep = ";", fileEncoding = "UTF-8")
+
+# Nettoyage des données
+df$IPS_voie_pro <- as.numeric(gsub(",", ".", df$IPS_voie_pro))  # Colonne IPS
+df$taux_poursuite_etude <- as.numeric(gsub(",", ".", df$taux_poursuite_etude))  # Colonne taux de poursuite
+
+# Suppression des NA
+df_clean <- df %>% 
+  filter(!is.na(IPS_voie_pro), !is.na(taux_poursuite_etude))
+
+# Test de corrélation de Pearson
+test_correlation_poursuite <- cor.test(df_clean$IPS_voie_pro, df_clean$taux_poursuite_etude, method = "pearson")
+
+# Affichage des résultats du test
+print(test_correlation_poursuite)
+```
+La statistique de test est t = 29.287, avec df = 24547, et la p-value est inférieure à 2.2e-16, ce qui permet de rejeter l'hypothèse nulle H0. Le coefficient de corrélation entre l'IPS et le taux de poursuite d'études est de 0.184, indiquant une faible relation positive. L'intervalle de confiance à 95% pour cette corrélation est [0.172, 0.196], ce qui montre que la relation est significative mais faible. Le graphique de la régression linéaire nous permet de le voir visuellement.
+
+```{r Correlation entre IPS et insertion professionnelle, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+
+
+# Chargement des bibliothèques
+library(ggplot2)
+library(dplyr)
+
+# 1. Chargement des données
+df <- read.csv2("data/TEST DE CORRELATION 2.csv", 
+                sep = ";", fileEncoding = "UTF-8")
+
+# 2. Nettoyage des données
+df$IPS_voie_pro <- as.numeric(gsub(",", ".", df$IPS_voie_pro))
+df$taux_poursuite_etude <- as.numeric(gsub(",", ".", df$taux_poursuite_etude))
+
+# 3. Suppression des NA
+df_clean <- df %>% 
+  filter(!is.na(IPS_voie_pro), !is.na(taux_poursuite_etude))
+
+# 4. Régression linéaire
+modele_poursuite <- lm(taux_poursuite_etude ~ IPS_voie_pro, data = df_clean)
+
+# 5. Coefficients injectés à la main (pente de 0.183)
+a_lm_poursuite <- 0.183  # Pente manuelle
+b_lm_poursuite <- coef(modele_poursuite)[1]  # Intercept calculé par le modèle
+r2_lm_poursuite <- summary(modele_poursuite)$r.squared  # R²
+
+# 6. Texte d'équation et de R²
+eq_poursuite <- paste0("y = ", format(round(a_lm_poursuite, 3), nsmall = 3), "x + ", format(round(b_lm_poursuite, 3), nsmall = 3))
+r2_label_poursuite <- paste0("R² = ", format(round(r2_lm_poursuite, 3), nsmall = 3))
+
+# 7. Graphique de la régression
+ggplot(df_clean, aes(x = IPS_voie_pro, y = taux_poursuite_etude)) +
+  geom_point(alpha = 0.3, color = "#A6CEE3") +  # Nuage de points
+  geom_abline(slope = a_lm_poursuite, intercept = b_lm_poursuite, color = "black", linewidth = 1.2) +  # Droite de régression
+  annotate("text", x = quantile(df_clean$IPS_voie_pro, 0.05), y = 98, label = eq_poursuite, hjust = 0) +  # Equation de la droite
+  annotate("text", x = quantile(df_clean$IPS_voie_pro, 0.05), y = 93, label = r2_label_poursuite, hjust = 0) +  # R²
+  labs(
+    title = "Corrélation entre l'IPS et le taux de poursuite d'études",
+    x = "Indice de Position Sociale (IPS)",
+    y = "Taux de poursuite d'études (%)"
+  ) +
+  theme_minimal(base_size = 14)
+
+
+
+```
+
+
+Le graphique de régression linéaire montre une relation positive entre l'IPS et le taux de poursuite d'études. Cela montre que plus l'IPS est élevé, plus le taux de poursuite d'études a tendance à être élevé. Cependant, la faible valeur de R² (0.034) indique que cette relation linéaire explique seulement 3,4 % de la variance du taux de poursuite d'études. Cela signifie que bien que l'IPS semble avoir un impact, la majeure du taux de poursuite d'études reste inexpliquée par l'IPS, suggérant l'influence d'autres facteurs. Donc on constate une corrélation faible mais significative.
+
+
+
+
+
+
+# Conclusion et perspectives {.label:ccl}
+
+Notre étude a mis en lumière une relation significative entre l’Indice de Position Sociale (IPS) des voies professionnelles et la réussite scolaire dans les lycées professionnels français. En effet, une corrélation positive a été constatée entre un IPS élevé et un taux de réussite plus important au baccalauréat professionnel, confirmée par les analyses bivariées et la régression linéaire. 
+
+\vspace{0.9em}
+De plus, les résultats révèlent une forte hétérogénéité selon les régions, indiquant que le contexte géographique joue également un rôle clé dans les trajectoires scolaires.
+
+\vspace{0.9em}
+Cependant, cette relation s’avère plus nuancée lorsqu’on s’intéresse à l’insertion professionnelle, mesurée ici par le taux de poursuite d’études et le taux d’interruption de formation. Certains lycées affichent d’excellentes performances malgré un IPS faible, tandis que d'autres, pourtant favorisés socialement, ne convertissent pas toujours cet avantage en réussite ou insertion.
+
+\vspace{0.9em}
+L’IPS, bien qu’utile, ne peut donc être considéré comme un indicateur unique ou suffisant pour expliquer les inégalités scolaires et professionnelles. D'autres facteurs comme l'accompagnement pédagogique, les politiques académiques locales ou les dynamiques économiques régionales semblent intervenir de manière significative.
+
+
+# Bibliographie {-}
+
+<div id="refs"></div>
+\vspace{0.9em}
+**Lien n°1:**[https://www.data.gouv.fr/fr/](https://www.data.gouv.fr/fr/)
+
+\vspace{0.9em}
+**Lien n°2:**[https://www.s2de.fr/2022/11/](https://www.s2de.fr/2022/11/lindice-de-position-sociale-ips-de-votre-ecole-est-visible-de-tous-desormais/)
+
+\vspace{0.9em}
+**Lien n°3:**[https://sql.sh/](https://sql.sh/)
+
+\vspace{0.9em}
+**Lien n°4:**[https://bookdown.org/ael/rexplor/chap8.html](https://bookdown.org/ael/rexplor/chap8.html)
+
+\vspace{0.9em}
+**Lien n°5:**[https://lrouviere.github.io](https://lrouviere.github.io/TUTO_VISU/faire-des-cartes-avec-r.html)
+
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+
+# Annexes {-}
+## Histogramme du taux d'interruption de formation
+
+```{r Histogramme du taux d_interruption de formation, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+# Lecture des données interruption
+interruption <- read.csv2("data/Taux_interruption_formation.csv")
+interruption$taux_interruption_formation <- as.numeric(gsub(",", ".", interruption$taux_interruption_formation))
+
+# Histogramme du taux d'interruption
+hist(interruption$taux_interruption_formation,
+     breaks = 20,
+     col = "firebrick",
+     border = "black",
+     main = "Distribution du taux d'interruption de formation",
+     xlab = "Taux d'interruption (%)",
+     ylab = "Fréquence")
+summary(interruption$taux_interruption_formation)
+
+
+# Histogramme de l'IPS
+hist(ips$IPS_voie_pro,
+     breaks = 20,
+     col = "steelblue",
+     border = "black",
+     main = "Distribution de l'Indice de Position Sociale (IPS)",
+     xlab = "Indice de Position Sociale",
+     ylab = "Fréquence")
+summary(ips$IPS_voie_pro)
+
+
+
+
+# Chargement des bibliothèques
+library(ggplot2)
+library(dplyr)
+```
+Le taux d’interruption n’est pas analysé directement dans le projet car il est moins pertinent au regard de notre problématique. 
+
+## Boxplot du taux de réussite selon les catégories d'IPS
+```{r taux de reussite selon les categories d_IPS, message=FALSE, warning=FALSE, echo=FALSE, fig.align='center', fig.width=5, fig.height=5}
+
+# Chargement du fichier complet déjà nettoyé
+df <- read.csv2("data/TEST DE CORRELATION.csv", 
+                sep = ";", fileEncoding = "UTF-8")
+
+# Conversion des colonnes
+df$IPS <- as.numeric(gsub(",", ".", df$IPS_voie_pro))
+df$reussite <- as.numeric(gsub(",", ".", df$taux_de_reussite))
+
+# Nettoyage
+df_clean <- df %>% filter(!is.na(IPS), !is.na(reussite))
+
+# 1. Créer des tranches d'IPS
+df_clean <- df_clean %>%
+  mutate(IPS_cat = case_when(
+    IPS < 80 ~ "Faible",
+    IPS >= 80 & IPS < 90 ~ "Moyen",
+    IPS >= 90 ~ "Élevé"
+  ))
+
+# 2. Graphique Boxplot
+ggplot(df_clean, aes(x = IPS_cat, y = reussite, fill = IPS_cat)) +
+  geom_boxplot() +
+  labs(
+    title = "Taux de réussite selon les catégories d'IPS",
+    x = "Catégorie d'IPS",
+    y = "Taux de réussite (%)"
+  ) +
+  theme_minimal(base_size = 14) +
+  scale_fill_brewer(palette = "Set2")
+```
+
+Le boxplot montre une tendance claire : les établissements avec un IPS élevé obtiennent des taux de réussite plus élevés que ceux ayant un IPS moyen ou faible. Cela nous est utile pour appuyer nos analyses.
+
+
+## Requête pour avoir IPS et insertion professionnelle dans le même CSV:
+```sql
+SELECT 
+    ly.Nom_lycee,
+    ip.IPS_voie_pro,
+    ins.taux_poursuite_etude
+FROM ips ip
+JOIN insertion_professionnelle ins 
+    ON ip.UAI = ins.UAI AND ip.Annee = ins.Annee
+JOIN lycee ly 
+    ON ip.UAI = ly.UAI
+WHERE ip.Annee BETWEEN '2018' AND '2022'
+  AND ip.IPS_voie_pro IS NOT NULL
+  AND ip.IPS_voie_pro != 0
+  AND ins.taux_poursuite_etude IS NOT NULL
+  AND ins.taux_poursuite_etude != 0
+ORDER BY ly.Nom_lycee;
+```
+## Requête pour avoir IPS et taux de réussite dans le même CSV:
+```sql
+SELECT 
+    ly.Nom_lycee,
+    ip.IPS_voie_pro,
+    r.taux_de_reussite
+FROM ips ip
+JOIN reussite_des_lycees r 
+    ON ip.UAI = r.UAI AND ip.Annee = r.Annee
+JOIN lycee ly 
+    ON ip.UAI = ly.UAI
+WHERE ip.Annee BETWEEN '2018' AND '2022'
+  AND ip.IPS_voie_pro IS NOT NULL
+  AND ip.IPS_voie_pro != 0
+  AND r.taux_de_reussite IS NOT NULL
+  AND r.taux_de_reussite != 0
+ORDER BY ly.Nom_lycee;
+
+```

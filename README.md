@@ -5,7 +5,7 @@
 ---
 
 ## 📝 Executive Summary
-This project investigates the critical intersection between socio-economic status—quantified by the **Social Position Index (IPS)**—and student trajectories within the French vocational education system. By leveraging massive datasets from the 2018-2022 period, we aimed to answer a central question: 
+This project investigates the relationship between socio-economic status, quantified by the Social Position Index (IPS), and student trajectories within the French vocational education system. By leveraging massive datasets from the 2018-2022 period, we aim to answer a central question:
 
 **To what extent does a school's social environment predict academic success and professional integration?**
 
